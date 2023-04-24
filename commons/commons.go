@@ -47,7 +47,7 @@ var (
 	ControlsPane   *fyne.Container
 
 	// STATS
-	Stats1    *widget.Entry
+	Stats1    *widget.Entry //todo: need to create
 	Stats2    *widget.Entry
 	FileField *widget.Entry
 
