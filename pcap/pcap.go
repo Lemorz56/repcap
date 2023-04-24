@@ -82,8 +82,8 @@ func Infos(filename string) (start time.Time, end time.Time, packets int, size i
 
 	fmt.Printf("Avg packet rate %d/s\n", packets/sec)
 	if commons.WithGui {
-		// s := fmt.Sprintf("%d", packets/sec)
-		// commons.Stats1.SetText(s)
+		s := fmt.Sprintf("%d", packets/sec)
+		commons.Stats1.SetText(s)
 	}
 
 	return start, end, packets, size
@@ -121,11 +121,11 @@ func EndReplay() {
 		commons.PcapHndl = nil
 	}
 
-	// if commons.WithGui {
-	// 	ui.QueueMain(func() {
-	// 		commons.StatPBar.SetValue(-1)
-	// 	})
-	// }
+	if commons.WithGui {
+		// ui.QueueMain(func() {
+		commons.StatPBar.SetValue(-1)
+		// })
+	}
 }
 
 func InternalReplay(handleWrite *pcap.Handle) bool {
@@ -137,12 +137,12 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 
 		if commons.WithGui {
 			// ui.QueueMain(func() {
-			// 	s := fmt.Sprintf("Finished in %s", time.Since(commons.Start))
-			// 	commons.Stats2.SetText(s)
+			s := fmt.Sprintf("Finished in %s", time.Since(commons.Start))
+			commons.Stats2.SetText(s)
 
-			// 	gui.EnableControls()
+			// gui.EnableControls()
 
-			// 	commons.PcapHndl = nil
+			commons.PcapHndl = nil
 			// })
 		}
 		return true
@@ -168,9 +168,9 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 
 			if commons.WithGui && !commons.ReplayFast {
 				// ui.QueueMain(func() {
-				// 	commons.StatPBar.SetValue(commons.Pkt * 100 / commons.Packets)
-				// 	s := fmt.Sprintf("rate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
-				// 	commons.Stats2.SetText(s)
+				commons.StatPBar.SetValue(float64(commons.Pkt * 100 / commons.Packets))
+				s := fmt.Sprintf("rate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
+				commons.Stats2.SetText(s)
 				// })
 			}
 		}

@@ -47,7 +47,44 @@ func main() {
 
 	app.Action = func(c *cli.Context) error {
 		if commons.WithGui {
-			// todo: gui
+			//todo: Create Gui Method
+			// a := fapp.New()
+			// w := a.NewWindow(fmt.Sprintf("%s - %s", app.Name, app.Version))
+			// w.CenterOnScreen()
+			// w.Resize(fyne.Size{Width: 800, Height: 800})
+			// // w.SetFixedSize(true)
+
+			// title := canvas.NewText("PCAP REPLAY!", color.White)
+			// title.Alignment = fyne.TextAlignCenter
+			// title.TextSize = 20
+			// title.TextStyle.Bold = true
+
+			// // INTERFACES
+			// interfacesLabel := widget.NewLabelWithStyle("Net Interfaces", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+			// // interfacesSelect := widget.NewSelect([]string{"eth0", "eth1"}, func(s string) {
+			// // 	fmt.Println("Chose interface:", s)
+			// // })
+
+			// // REPLAY
+			// replayLabel := widget.NewLabelWithStyle("Replay", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+
+			// // CONTROLS
+			// controlsLabel := widget.NewLabelWithStyle("Controls", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+			// ffBtn := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() { fmt.Println("fast foward") })
+			// playBtn := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() { fmt.Println("play") })
+			// pauseBtn := widget.NewButtonWithIcon("", theme.MediaPauseIcon(), func() { fmt.Println("pause") })
+			// frwBtn := widget.NewButtonWithIcon("", theme.MediaFastRewindIcon(), func() { fmt.Println("fast rewind") })
+
+			// // hBOX & vBOX
+			// hBox := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), frwBtn, pauseBtn, playBtn, ffBtn, layout.NewSpacer())
+			// vBox := container.New(layout.NewVBoxLayout(), title, interfacesLabel, commons.Interfaces, widget.NewSeparator(), replayLabel, widget.NewSeparator(), layout.NewSpacer(), controlsLabel, hBox)
+
+			// // w.SetContent(content)
+			// w.SetContent(vBox)
+			// w.ShowAndRun()
+
+			CreateGui()
+
 		} else {
 			pcap.Replay()
 		}
