@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 	"github.com/google/gopacket/pcap"
-	"github.com/lemorz56/pcapreplay/extensions"
 )
 
 // options vars
@@ -41,32 +40,37 @@ var (
 	MainWin  fyne.Window
 	MainPane fyne.Container
 
+	//todo: remove
+	DeviceName        string
+	DeviceDescription string
+	DeviceAddress     string
+
 	// CONTAINERS
-	InterfacesPane *fyne.Container
-	ReplayPane     *fyne.Container
-	ControlsPane   *fyne.Container
+	//InterfacesPane *fyne.Container
+	//ReplayPane     *fyne.Container
+	//ControlsPane *fyne.Container
 
 	// STATS
-	Stats1    *widget.Entry //todo: need to create
-	Stats2    *widget.Entry
-	FileField *widget.Entry
+	Stats1 *widget.Entry //todo: need to create
+	Stats2 *widget.Entry
+	// FileField *widget.Entry
 
 	// NUMBER BOX
-	StepSpinBox *extensions.NumericalEntry
+	// StepSpinBox *extensions.NumericalEntry
 
 	// PROGRESSBAR
 	StatPBar *widget.ProgressBar
 
 	// INTERFACES
-	InterfacesLabel *widget.Label
-	Interfaces      *widget.Select
+	// InterfacesLabel *widget.Label
+	// Interfaces      *widget.Select
 	// InterfacesList  *[]string
 
 	// CONTROLS
-	ControlLabel   *widget.Label
-	PlayBtn        *widget.Button
-	FastPlayBtn    *widget.Button
-	StepPlayBtn    *widget.Button
-	StepOnePlayBtn *widget.Button
-	ResetBtn       *widget.Button
+	// ControlLabel   *widget.Label
+	// PlayBtn        *widget.Button
+	// FastPlayBtn    *widget.Button
+	// StepPlayBtn    *widget.Button
+	// StepOnePlayBtn *widget.Button
+	// ResetBtn       *widget.Button
 )
