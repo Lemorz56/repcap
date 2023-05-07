@@ -1,52 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"net"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/lemorz56/pcapreplay/commons"
+	"github.com/lemorz56/pcapreplay/components"
 )
-
-func DisableControls() {
-	// Entries
-	commons.Stats1.Disable()
-	commons.Stats2.Disable()
-	commons.FileField.Disable()
-
-	commons.StepSpinBox.Disable()
-	commons.Interfaces.Disable()
-
-	// Buttons
-	commons.PlayBtn.Disable()
-	commons.FastPlayBtn.Disable()
-	commons.StepPlayBtn.Disable()
-	commons.StepOnePlayBtn.Disable()
-	commons.ResetBtn.Disable()
-}
-
-func EnableControls() {
-	// Entries
-	commons.Stats1.Enable()
-	commons.Stats2.Enable()
-	commons.FileField.Enable()
-
-	commons.StepSpinBox.Enable()
-	commons.Interfaces.Enable()
-
-	// Buttons
-	commons.PlayBtn.Enable()
-	commons.FastPlayBtn.Enable()
-	commons.StepPlayBtn.Enable()
-	commons.StepOnePlayBtn.Enable()
-	commons.ResetBtn.Enable()
-}
 
 func CreateGui() {
 	// todo: put app in main
@@ -58,52 +21,81 @@ func CreateGui() {
 	commons.MainWin.Resize(fyne.NewSize(800, 800))
 
 	// INTERFACES container
-	commons.InterfacesLabel = widget.NewLabelWithStyle("Net Interfaces", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	commons.Interfaces = widget.NewSelect([]string{}, onInterfaceSelect)
+	// commons.InterfacesLabel = widget.NewLabelWithStyle("Net Interfaces", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	// commons.Interfaces = widget.NewSelect([]string{}, onInterfaceSelect)
 
-	intfs, _ := net.Interfaces()
-	for _, intf := range intfs {
-		commons.Interfaces.Options = append(commons.Interfaces.Options, intf.Name)
+	interfacesPane := components.NewInterfacesPane()
+	interfacesPane.InitPane()
+	interfacesPane.CreateAndFillContainer()
+
+	if commons.IntfId != "" {
+		interfacesPane.ComboBox.SetSelected(commons.IntfId)
 	}
-	commons.InterfacesPane = container.New(layout.NewVBoxLayout(), commons.InterfacesLabel, commons.Interfaces)
 
 	// REPLAY container
-	// ctor stuff
+	// // ctor stuff
 	commons.Stats1 = widget.NewEntry()
 	commons.Stats2 = widget.NewEntry()
-	commons.FileField = widget.NewEntry()
+	commons.StatPBar = widget.NewProgressBar()
+	// commons.FileField = widget.NewEntry()
 
-	//todo: add fileDialog button next to field
+	// // IF pcap arg is set at launch
+	// commons.FileField.SetText(commons.PcapFile)
 
-	fileDialog := dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
-		if err != nil {
-			dialog.NewConfirm("Error", err.Error(), nil, commons.MainWin)
-		}
+	// currentSize := commons.FileField.Size()
+	// commons.FileField.Resize(fyne.NewSize(10, currentSize.Height))
 
-		commons.PcapFile = uc.URI().Path()
-		commons.FileField.Text = uc.URI().Name()
-	}, commons.MainWin)
+	// // FILE Dialog
+	// fileDialog := dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
+	// 	if err != nil {
+	// 		dialog.NewConfirm("Error", err.Error(), nil, commons.MainWin)
+	// 	}
 
-	commons.ReplayPane = container.New(layout.NewVBoxLayout())
+	// 	commons.PcapFile = uc.URI().Path() //todo: data binding, the UI isnt updating
+	// 	//commons.FileField.Text = uc.URI().Name()
+	// 	commons.FileField.SetText(uc.URI().Name())
+	// 	fmt.Println("path:", uc.URI().Path())
+	// 	fmt.Println("name:", uc.URI().Name())
+	// }, commons.MainWin)
+	// fileDialog.SetFilter(storage.NewExtensionFileFilter([]string{".pcap"}))
+	// fileDialog.Resize(fyne.NewSize(600, 600))
 
-	// CONTROLS container
-	commons.ControlLabel = widget.NewLabelWithStyle("Controls", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	commons.PlayBtn = widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() { fmt.Println("play") })
-	commons.FastPlayBtn = widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() { fmt.Println("fast foward") })
-	commons.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() { fmt.Println("reset") })
-	commons.StepOnePlayBtn = widget.NewButtonWithIcon("StepOne", theme.MediaSkipNextIcon(), func() { fmt.Println("fast rewind") })
-	// -> containers
-	controlButtons := container.New(layout.NewHBoxLayout(), commons.PlayBtn, commons.FastPlayBtn, commons.ResetBtn, commons.StepOnePlayBtn)
-	commons.ControlsPane = container.New(layout.NewVBoxLayout(), commons.ControlLabel, controlButtons)
+	// fileButton := widget.NewButtonWithIcon("", theme.FileIcon(), fileDialog.Show)
 
-	//
-	motherContainer := container.New(layout.NewVBoxLayout(), commons.InterfacesPane, commons.ControlsPane)
+	// fileRow := container.New(layout.NewHBoxLayout(), commons.FileField, fileButton)
+	// fileRow := container.NewWithoutLayout(commons.FileField, fileButton)
+	//fileRow := container.New(layout.NewGridLayout(2), commons.FileField, fileButton)
+
+	replayPane := components.NewReplayPane()
+	replayPane.InitPane(commons.MainWin)
+	replayPane.CreateAndFillContainer()
+
+	replayPane.Stats1.Bind(binding.BindString(&commons.Stats1.Text))
+	replayPane.Stats2.Bind(binding.BindString(&commons.Stats2.Text))
+	replayPane.StatPBar.Bind(binding.BindFloat(&commons.StatPBar.Value))
+
+	controlPane := components.NewControlsPane()
+	controlPane.InitPane()
+	controlPane.CreateAndFillContainer()
+
+	//commons.ReplayPane = container.New(layout.NewVBoxLayout(), fileRow, commons.Stats1, commons.Stats2)
+
+	// // CONTROLS container
+	// commons.ControlLabel = widget.NewLabelWithStyle("Controls", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	// commons.PlayBtn = widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() { fmt.Println("play") })
+	// commons.FastPlayBtn = widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() { fmt.Println("fast foward") })
+	// commons.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() { fmt.Println("reset") })
+	// commons.StepOnePlayBtn = widget.NewButtonWithIcon("StepOne", theme.MediaSkipNextIcon(), func() { fmt.Println("fast rewind") })
+	// // -> containers
+	// controlButtons := container.New(layout.NewHBoxLayout(), commons.PlayBtn, commons.FastPlayBtn, commons.ResetBtn, commons.StepOnePlayBtn)
+	// commons.ControlsPane = container.New(layout.NewVBoxLayout(), commons.ControlLabel, controlButtons)
+
+	// root container that contains all other containers/panes
+	motherContainer := container.New(layout.NewVBoxLayout(), interfacesPane.Container, replayPane.Container, controlPane.Container)
 	commons.MainWin.SetContent(motherContainer)
 	commons.MainWin.ShowAndRun()
 }
 
 func onInterfaceSelect(s string) {
-	interfaces, _ := net.Interfaces()
-
-	commons.IntfId = interfaces[commons.Interfaces.SelectedIndex()].Name
+	commons.IntfId = s
 }
