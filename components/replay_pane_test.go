@@ -12,7 +12,8 @@ func TestCreateAndFillContainer(t *testing.T) {
 	win := a.NewWindow("test")
 
 	rp := NewReplayPane()
-	rp.InitPane(win)
+	rp.MainWindow = &win
+	rp.InitPane()
 	rp.CreateAndFillContainer()
 
 	assert.NotNil(t, rp.Container)
@@ -24,7 +25,8 @@ func TestInitPane(t *testing.T) {
 	win := a.NewWindow("test")
 
 	rp := NewReplayPane()
-	rp.InitPane(win)
+	rp.MainWindow = &win
+	rp.InitPane()
 
 	assert.NotNil(t, rp.Label)
 	assert.NotNil(t, rp.Stats1)

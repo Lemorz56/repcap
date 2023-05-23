@@ -2,8 +2,12 @@ package components
 
 import (
 	"fmt"
-
 	"fyne.io/fyne/v2"
+	"github.com/lemorz56/pcapreplay/commons"
+	"github.com/lemorz56/pcapreplay/extension"
+	"github.com/lemorz56/pcapreplay/pcap"
+	"strconv"
+
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
@@ -11,14 +15,14 @@ import (
 )
 
 type ControlsPane struct {
-	Container   *fyne.Container
-	Label       *widget.Label //todo: make private
-	PlayBtn     *widget.Button
-	FastPlayBtn *widget.Button
-	//StepPlayBtn    *widget.Button
+	Container      *fyne.Container
+	Label          *widget.Label
+	PlayBtn        *widget.Button
+	FastPlayBtn    *widget.Button
+	StepPlayBtn    *widget.Button
 	StepOnePlayBtn *widget.Button
 	ResetBtn       *widget.Button
-	//StepSpinBox    *extensions.NumericalEntry
+	StepSpinBox    *extension.NumericalEntry
 }
 
 func NewControlsPane() *ControlsPane {
@@ -32,8 +36,6 @@ func (cp *ControlsPane) InitPane() {
 		fyne.TextStyle{Bold: true},
 	)
 	cp.initButtons()
-
-	//cp.StepSpinBox = extensions.NewNumericalEntry()
 }
 
 func (cp *ControlsPane) CreateAndFillContainer() {
@@ -42,18 +44,79 @@ func (cp *ControlsPane) CreateAndFillContainer() {
 		cp.Label,
 		container.New(
 			layout.NewHBoxLayout(),
+			layout.NewSpacer(),
+			cp.ResetBtn,
 			cp.PlayBtn,
-			cp.FastPlayBtn,
+			cp.StepSpinBox,
+			cp.StepPlayBtn,
 			cp.StepOnePlayBtn,
-			cp.ResetBtn),
+			cp.FastPlayBtn,
+			layout.NewSpacer()),
 	)
 }
 
 // initialize all buttons with icons and callbacks
 func (cp *ControlsPane) initButtons() {
-	cp.PlayBtn = widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() { fmt.Println("play") })
-	cp.StepOnePlayBtn = widget.NewButtonWithIcon("StepOne", theme.MediaSkipNextIcon(), func() { fmt.Println("fast rewind") })
-	//cp.StepPlayBtn = widget.NewButtonWithIcon("", theme.Media, func() { fmt.Println("step") })
-	cp.FastPlayBtn = widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() { fmt.Println("fast foward") })
-	cp.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() { fmt.Println("reset") })
+	cp.PlayBtn = widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() {
+		fmt.Println("played")
+
+		commons.ReplayFast = false
+		//cp.DisableControls()
+		go pcap.Replay()
+	})
+
+	cp.StepOnePlayBtn = widget.NewButtonWithIcon("StepOne", theme.MediaSkipNextIcon(), func() {
+		fmt.Println("step one")
+
+		commons.ReplayFast = false
+		//cp.DisableControls()
+		go pcap.ReplayStep(1)
+	})
+
+	cp.StepSpinBox = extension.NewNumericalEntry()
+	cp.StepSpinBox.SetText("10")
+
+	cp.StepPlayBtn = widget.NewButtonWithIcon("", theme.MediaSkipNextIcon(), func() {
+		fmt.Println("step " + cp.StepSpinBox.Text)
+
+		commons.ReplayFast = false
+		//cp.DisableControls()
+		val, _ := strconv.Atoi(cp.StepSpinBox.Text)
+		go pcap.ReplayStep(val)
+	})
+
+	cp.FastPlayBtn = widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() {
+		fmt.Println("fast forward")
+
+		commons.ReplayFast = true
+		//cp.DisableControls()
+		go pcap.Replay()
+	})
+
+	cp.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() {
+		fmt.Println("reset")
+
+		commons.ReplayFast = false
+		//cp.EnableControls()
+		// go pcap.EndReplay()
+		pcap.EndReplay()
+	})
+}
+
+func (cp *ControlsPane) DisableControls() {
+	cp.PlayBtn.Disable()
+	cp.FastPlayBtn.Disable()
+	cp.StepPlayBtn.Disable()
+	cp.StepOnePlayBtn.Disable()
+	//cp.ResetBtn.Disable()
+	cp.StepSpinBox.Disable()
+}
+
+func (cp *ControlsPane) EnableControls() {
+	cp.PlayBtn.Enable()
+	cp.FastPlayBtn.Enable()
+	cp.StepPlayBtn.Enable()
+	cp.StepOnePlayBtn.Enable()
+	//cp.ResetBtn.Enable()
+	cp.StepSpinBox.Enable()
 }

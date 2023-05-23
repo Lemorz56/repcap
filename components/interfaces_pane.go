@@ -2,84 +2,72 @@ package components
 
 import (
 	"fmt"
+	"fyne.io/fyne/v2/data/binding"
+	"github.com/lemorz56/pcapreplay/nic"
 	"log"
-	"net"
-	"runtime"
 	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/google/gopacket/pcap"
 	"github.com/lemorz56/pcapreplay/commons"
 )
 
 type InterfacesPane struct {
-	Container *fyne.Container
-	Label     *widget.Label  //todo: make private
-	ComboBox  *widget.Select //todo: make private
-	//OnSelect  func(s string)
-	// Windows only to get NIC
-	DeviceName        *widget.Label
-	DeviceDescription *widget.Label
-	DeviceAddress     *widget.Label
+	NicService        nic.NicServiceInterface
+	Container         *fyne.Container
+	Label             *widget.Label
+	ComboBox          *widget.Select
+	SelectedInterface *selectedInterface
 }
 
-func NewInterfacesPane() *InterfacesPane {
-	return &InterfacesPane{}
+type selectedInterface struct {
+	Name        *widget.Label
+	Description *widget.Label
+	Address     *widget.Label
 }
 
-func (ip *InterfacesPane) InitPane() { //onSelectFunc func(s string)
+func NewInterfacesPane(ns nic.NicServiceInterface) *InterfacesPane {
+	ip := &InterfacesPane{
+		NicService: ns,
+		Container:  nil,
+		Label:      widget.NewLabelWithStyle("Net Interfaces", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		ComboBox:   nil,
+		SelectedInterface: &selectedInterface{
+			Name:        widget.NewLabel("Name"),
+			Description: widget.NewLabel("Description"),
+			Address:     widget.NewLabel("Address"),
+		},
+	}
 
-	ip.Label = widget.NewLabelWithStyle("Net Interfaces",
-		fyne.TextAlignLeading,
-		fyne.TextStyle{Bold: true},
-	)
+	ip.SelectedInterface.Address.Bind(binding.BindString(&commons.DeviceName))
+	ip.SelectedInterface.Description.Bind(binding.BindString(&commons.DeviceDescription))
+	ip.SelectedInterface.Address.Bind(binding.BindString(&commons.DeviceAddress))
 
-	ip.DeviceName = widget.NewLabelWithStyle("Name",
-		fyne.TextAlignLeading,
-		fyne.TextStyle{Bold: true},
-	)
-	ip.DeviceName.Bind(binding.BindString(&commons.DeviceName))
+	ip.initCombobox()
 
-	ip.DeviceDescription = widget.NewLabelWithStyle("Description",
-		fyne.TextAlignLeading,
-		fyne.TextStyle{Bold: true},
-	)
-	ip.DeviceDescription.Bind(binding.BindString(&commons.DeviceDescription))
+	return ip
+}
 
-	ip.DeviceAddress = widget.NewLabelWithStyle("Address",
-		fyne.TextAlignLeading,
-		fyne.TextStyle{Bold: true},
-	)
-	ip.DeviceAddress.Bind(binding.BindString(&commons.DeviceAddress))
+func (ip *InterfacesPane) InitPane() {
+	err := ip.NicService.InitNics()
+	if err != nil {
+		log.Fatal(err) //todo: make popup?
+	}
 
-	//ip.ComboBox = widget.NewSelect([]string{}, onSelectFunc)
-	ip.ComboBox = widget.NewSelect([]string{}, func(s string) {
-		onInterfaceSelect(s, ip)
-	})
+	devices, err := ip.NicService.GetAllNics()
+	if err != nil {
+		log.Fatal(err) //todo: make popup?
+	}
 
-	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		intfs, _ := net.Interfaces()
-		for _, intf := range intfs {
-			ip.ComboBox.Options = append(ip.ComboBox.Options, intf.Name)
-		}
-	} else if runtime.GOOS == "windows" {
-		var err error
-		devices, err := pcap.FindAllDevs()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for _, device := range devices {
-			fmt.Println("\nName: ", device.Name)
-			ip.ComboBox.Options = append(ip.ComboBox.Options, device.Name)
-
-			fmt.Println("Description: ", device.Description)
-			for _, address := range device.Addresses {
-				fmt.Println("- IP address: ", address.IP)
+	for _, device := range devices {
+		ip.ComboBox.Options = append(ip.ComboBox.Options, device.Id)
+		//todo: add debug logs
+		fmt.Println("appended device.Id:", device.Id)
+		if commons.IntfId != "" {
+			if device.Id == commons.IntfId {
+				ip.ComboBox.SetSelected(device.Id)
 			}
 		}
 	}
@@ -90,42 +78,37 @@ func (ip *InterfacesPane) CreateAndFillContainer() {
 		layout.NewVBoxLayout(),
 		ip.Label,
 		ip.ComboBox,
-		ip.DeviceName,
-		ip.DeviceDescription,
-		ip.DeviceAddress,
+		ip.SelectedInterface.Name,
+		ip.SelectedInterface.Description,
+		ip.SelectedInterface.Address,
 	)
 }
 
+func (ip *InterfacesPane) initCombobox() {
+	ip.ComboBox = widget.NewSelect([]string{}, func(s string) {
+		onInterfaceSelect(s, ip)
+	})
+}
+
 func onInterfaceSelect(s string, ip *InterfacesPane) {
-	fmt.Println("Chose interface:", s)
 	commons.IntfId = s
-	fmt.Println("commons.IntfId:", commons.IntfId)
-
-	// todo: create a struct/funcs to handle the interfaces
-	// since it differs so much between windows and linux
-	if runtime.GOOS == "windows" {
-		devices, err := pcap.FindAllDevs()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for _, device := range devices {
-			if device.Name == s {
-				commons.DeviceName = device.Name
-				commons.DeviceDescription = device.Description
-
-				stringSlice := []string{}
-				for _, address := range device.Addresses {
-					stringSlice = append(stringSlice, address.IP.String())
-				}
-				commons.DeviceAddress = strings.Join(stringSlice, ", ")
-
-				//todo fix:
-				ip.DeviceName.SetText(fmt.Sprintf("Name: %s", device.Name))
-				ip.DeviceDescription.SetText(fmt.Sprintf("Description: %s", device.Description))
-				ip.DeviceAddress.SetText(fmt.Sprintf("Address(es): %s", strings.Join(stringSlice, ", ")))
-				break
-			}
-		}
+	device, err := ip.NicService.GetNicByName(s)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	var stringSlice []string
+	for _, address := range device.Addresses {
+		stringSlice = append(stringSlice, address.IP.String())
+	}
+	commons.DeviceName = fmt.Sprintf("Name: %s", device.Id)
+	commons.DeviceDescription = fmt.Sprintf("Description: %s", device.Description)
+	commons.DeviceAddress = fmt.Sprintf("Address(es): %s", strings.Join(stringSlice, ", "))
+
+	ip.SelectedInterface.Name.SetText(commons.DeviceName)
+	ip.SelectedInterface.Description.SetText(commons.DeviceDescription)
+	ip.SelectedInterface.Address.SetText(commons.DeviceAddress)
+	//ip.SelectedInterface.Name.Refresh()
+	//ip.SelectedInterface.Description.Refresh()
+	//ip.SelectedInterface.Address.Refresh()
 }
