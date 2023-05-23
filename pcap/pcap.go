@@ -1,8 +1,7 @@
-// pcap helpers
-
 package pcap
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,10 +12,8 @@ import (
 	"github.com/lemorz56/pcapreplay/commons"
 )
 
-// replay a packet with a sleep if need after
 func WritePacketDelayed(handle *pcap.Handle, buf []byte, ci gopacket.CaptureInfo) {
 	if ci.CaptureLength != ci.Length {
-		// do not write truncated packets
 		return
 	}
 
@@ -28,28 +25,27 @@ func WritePacketDelayed(handle *pcap.Handle, buf []byte, ci gopacket.CaptureInfo
 	}
 
 	commons.LastSend = time.Now()
-	WritePacket(handle, buf)
+	//todo: add counter to count the number of packets NOT sent
+	// if WritePacket returns an error, increment the counter
+	_ = WritePacket(handle, buf)
 	commons.LastTS = ci.Timestamp
 }
 
-// replay a packet
 func WritePacket(handle *pcap.Handle, buf []byte) error {
 	if err := handle.WritePacketData(buf); err != nil {
-		log.Printf("Failed to send packet: %s\n", err)
-		return err
+		return errors.New("failed to send packet: " + err.Error())
 	}
 	return nil
 }
 
-// get pcap file infos : start time, end time, total number of packets, total size of all packets
-func Infos(filename string) (start time.Time, end time.Time, packets int, size int) {
+func Infos(filename string) (start, end time.Time, packets, size int) {
 	handleRead, err := pcap.OpenOffline(filename)
 	if err != nil {
-		log.Fatal("PCAP OpenOffline error (handle to read packet):", err)
+		log.Fatalf("PCAP OpenOffline error (handle to read packet): %v", err)
 	}
 	defer handleRead.Close()
 
-	var previousTs time.Time
+	var previousTS time.Time
 	var deltaTotal time.Duration
 
 	for {
@@ -58,32 +54,36 @@ func Infos(filename string) (start time.Time, end time.Time, packets int, size i
 			log.Fatal(err)
 		} else if err == io.EOF {
 			break
+		}
+
+		if start.IsZero() {
+			start = ci.Timestamp
+		}
+		end = ci.Timestamp
+		packets++
+		size += len(data)
+
+		if previousTS.IsZero() {
+			previousTS = ci.Timestamp
 		} else {
-
-			if start.IsZero() {
-				start = ci.Timestamp
-			}
-			end = ci.Timestamp
-			packets++
-			size += len(data)
-
-			if previousTs.IsZero() {
-				previousTs = ci.Timestamp
-			} else {
-				deltaTotal += ci.Timestamp.Sub(previousTs)
-				previousTs = ci.Timestamp
-			}
+			deltaTotal += ci.Timestamp.Sub(previousTS)
+			previousTS = ci.Timestamp
 		}
 	}
+
 	sec := int(deltaTotal.Seconds())
 	if sec == 0 {
 		sec = 1
 	}
 
-	fmt.Printf("Avg packet rate %d/s\n", packets/sec)
+	log.Printf("Avg packet rate %d/s\n", packets/sec)
 	if commons.WithGui {
 		s := fmt.Sprintf("%d", packets/sec)
-		commons.Stats1.SetText(s)
+		err = commons.Stats1.Set(s)
+		if err != nil {
+			//todo: this!
+			log.Fatalf("Error: %v", err)
+		}
 	}
 
 	return start, end, packets, size
@@ -91,9 +91,9 @@ func Infos(filename string) (start time.Time, end time.Time, packets int, size i
 
 func LoadPcap(filename string) {
 	var err error
-	commons.PcapHndl, err = pcap.OpenOffline(filename)
+	commons.PcapHandle, err = pcap.OpenOffline(filename)
 	if err != nil {
-		log.Fatal("PCAP OpenOffline error (handle to read packet):", err)
+		log.Fatalf("PCAP OpenOffline error (handle to read packet): %v", err)
 	}
 
 	commons.Start = time.Now()
@@ -101,13 +101,13 @@ func LoadPcap(filename string) {
 	commons.TsStart, commons.TsEnd, commons.Packets, commons.Size = Infos(commons.PcapFile)
 }
 
-func OpenDest(netintf string) *pcap.Handle {
-	inactive, crErr := pcap.NewInactiveHandle(netintf)
-	if crErr != nil {
-		log.Fatalf("Error creating inactive handle : %v", crErr)
+func OpenDest(netIntf string) *pcap.Handle {
+	inactive, err := pcap.NewInactiveHandle(netIntf)
+	if err != nil {
+		log.Fatalf("Error creating inactive handle: %v", err)
 	}
-	inactive.SetPromisc(true)
-
+	//todo: error handling
+	_ = inactive.SetPromisc(true)
 	defer inactive.CleanUp()
 
 	handleWrite, _ := inactive.Activate()
@@ -116,34 +116,36 @@ func OpenDest(netintf string) *pcap.Handle {
 }
 
 func EndReplay() {
-	if commons.PcapHndl != nil {
-		commons.PcapHndl.Close()
-		commons.PcapHndl = nil
+	if commons.PcapHandle != nil {
+		commons.PcapHandle.Close()
+		commons.PcapHandle = nil
 	}
 
 	if commons.WithGui {
-		// ui.QueueMain(func() {
-		commons.StatPBar.SetValue(-1)
-		// })
+		//commons.StatPBar.SetValue(-1)
+		err := commons.StatPBar.Set(-1)
+		if err != nil {
+			//todo: this!
+			log.Printf("Error setting progress bar: %v", err)
+		}
 	}
 }
 
 func InternalReplay(handleWrite *pcap.Handle) bool {
-	data, ci, err := commons.PcapHndl.ReadPacketData()
+	data, ci, err := commons.PcapHandle.ReadPacketData()
+
 	switch {
 	case err == io.EOF:
-		fmt.Printf("\nFinished in %s", time.Since(commons.Start))
+		log.Printf("\nFinished in %s", time.Since(commons.Start))
 		EndReplay()
 
 		if commons.WithGui {
-			// ui.QueueMain(func() {
 			s := fmt.Sprintf("Finished in %s", time.Since(commons.Start))
-			commons.Stats2.SetText(s)
-
-			// gui.EnableControls()
-
-			commons.PcapHndl = nil
-			// })
+			err = commons.Stats2.Set(s)
+			if err != nil {
+				fmt.Println("Error setting stats2: ", err)
+			}
+			commons.PcapHandle = nil
 		}
 		return true
 
@@ -152,7 +154,7 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 
 	default:
 		if commons.ReplayFast {
-			WritePacket(handleWrite, data)
+			_ = WritePacket(handleWrite, data)
 		} else {
 			WritePacketDelayed(handleWrite, data, ci)
 		}
@@ -164,31 +166,49 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 		if duration > time.Second {
 			rate := commons.BytesSent / int(duration.Seconds())
 			remainingTime := commons.TsEnd.Sub(commons.TsStart) - duration
-			fmt.Printf("\rrate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
+			log.Printf("\rrate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
 
 			if commons.WithGui && !commons.ReplayFast {
-				// ui.QueueMain(func() {
-				commons.StatPBar.SetValue(float64(commons.Pkt * 100 / commons.Packets))
+				//commons.StatPBar.SetValue(float64(commons.Pkt * 100 / commons.Packets))
+				test1 := float64(commons.Pkt*100/commons.Packets) / 100
+				test2 := commons.Pkt * 100 / commons.Packets
+				fmt.Printf("test1: %f\n", test1)
+				fmt.Printf("test2: %d\n", test2)
+
+				// float64(commons.Pkt*100/commons.Packets)
+				err = commons.StatPBar.Set(test1) //todo: this generates 1..2..3 which does not work, 1 = 100%
+				tt := commons.Pkt * 100 / commons.Packets
+				fmt.Printf("test tt: %d\n", tt)
+
+				if err != nil {
+					//todo: this!
+					log.Printf("Error setting progress bar: %v", err)
+				}
+				test3, _ := commons.StatPBar.Get()
+				fmt.Println("test3: ", test3)
 				s := fmt.Sprintf("rate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
-				commons.Stats2.SetText(s)
-				// })
+				err = commons.Stats2.Set(s)
+
+				fmt.Printf("stuff: \tCommons.Pkt\tval\tcommon.Packets\n")
+				fmt.Printf("stuff: \t%d\t%d\t%d\n", commons.Pkt, 100, commons.Packets)
+
+				if err != nil {
+					//todo: this!
+					log.Printf("Error setting stats2: %v", err)
+				}
 			}
 		}
 	}
-
 	return false
 }
 
-// replay a pcap file on the device defined
 func Replay() {
-	if commons.PcapHndl != nil {
+	if commons.PcapHandle != nil {
 		EndReplay()
 	}
-
 	LoadPcap(commons.PcapFile)
 	handleWrite := OpenDest(commons.IntfId)
 
-	// loop over packets and write them
 	for {
 		if InternalReplay(handleWrite) {
 			break
@@ -197,20 +217,14 @@ func Replay() {
 }
 
 func ReplayStep(step int) {
-	if commons.PcapHndl == nil {
+	if commons.PcapHandle == nil {
 		LoadPcap(commons.PcapFile)
 	}
-
 	handleWrite := OpenDest(commons.IntfId)
 
-	// loop over packets and write them
 	for i := 0; i < step; i++ {
 		if InternalReplay(handleWrite) {
 			break
 		}
 	}
-
-	// ui.QueueMain(func() {
-	// 	gui.EnableControls()
-	// })
 }
