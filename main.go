@@ -1,12 +1,16 @@
-// https://github.com/fyne-io/fyne#getting-started
 package main
 
 import (
+	"fmt"
+	"github.com/urfave/cli/v2"
+	"log"
+	"net"
 	"os"
+	"runtime"
 
+	gpcap "github.com/google/gopacket/pcap"
 	"github.com/lemorz56/pcapreplay/commons"
 	"github.com/lemorz56/pcapreplay/pcap"
-	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -45,46 +49,19 @@ func main() {
 		},
 	}
 
+	app.Commands = []*cli.Command{{
+		Name: "list",
+		Aliases: []string{
+			"ls",
+		},
+		Description: "list all interfaces",
+		Action:      ListAllInterfaces,
+	},
+	}
+
 	app.Action = func(c *cli.Context) error {
 		if commons.WithGui {
-			//todo: Create Gui Method
-			// a := fapp.New()
-			// w := a.NewWindow(fmt.Sprintf("%s - %s", app.Name, app.Version))
-			// w.CenterOnScreen()
-			// w.Resize(fyne.Size{Width: 800, Height: 800})
-			// // w.SetFixedSize(true)
-
-			// title := canvas.NewText("PCAP REPLAY!", color.White)
-			// title.Alignment = fyne.TextAlignCenter
-			// title.TextSize = 20
-			// title.TextStyle.Bold = true
-
-			// // INTERFACES
-			// interfacesLabel := widget.NewLabelWithStyle("Net Interfaces", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-			// // interfacesSelect := widget.NewSelect([]string{"eth0", "eth1"}, func(s string) {
-			// // 	fmt.Println("Chose interface:", s)
-			// // })
-
-			// // REPLAY
-			// replayLabel := widget.NewLabelWithStyle("Replay", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-
-			// // CONTROLS
-			// controlsLabel := widget.NewLabelWithStyle("Controls", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-			// ffBtn := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() { fmt.Println("fast foward") })
-			// playBtn := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() { fmt.Println("play") })
-			// pauseBtn := widget.NewButtonWithIcon("", theme.MediaPauseIcon(), func() { fmt.Println("pause") })
-			// frwBtn := widget.NewButtonWithIcon("", theme.MediaFastRewindIcon(), func() { fmt.Println("fast rewind") })
-
-			// // hBOX & vBOX
-			// hBox := container.New(layout.NewHBoxLayout(), layout.NewSpacer(), frwBtn, pauseBtn, playBtn, ffBtn, layout.NewSpacer())
-			// vBox := container.New(layout.NewVBoxLayout(), title, interfacesLabel, commons.Interfaces, widget.NewSeparator(), replayLabel, widget.NewSeparator(), layout.NewSpacer(), controlsLabel, hBox)
-
-			// // w.SetContent(content)
-			// w.SetContent(vBox)
-			// w.ShowAndRun()
-
 			CreateGui()
-
 		} else {
 			pcap.Replay()
 		}
@@ -92,5 +69,38 @@ func main() {
 		return nil
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+}
+
+// todo: https://github.com/esnet/gdg/tree/master/.github
+
+func ListAllInterfaces(c *cli.Context) error {
+	if runtime.GOOS == "windows" {
+		interfaces, err := gpcap.FindAllDevs()
+		if err != nil {
+			fmt.Println("Could not list all interfaces: ", err)
+			return err
+		}
+
+		for _, i := range interfaces {
+			fmt.Println("Name:", i.Name)
+			fmt.Println("Desc:", i.Description)
+			fmt.Println("Addrs:", i.Addresses)
+		}
+		return nil
+	} else {
+		interfaces, err := net.Interfaces()
+		if err != nil {
+			fmt.Println("Could not list all interfaces: ", err)
+			return err
+		}
+
+		for _, i := range interfaces {
+			fmt.Println("Name:", i.Name)
+		}
+		return nil
+	}
 }
