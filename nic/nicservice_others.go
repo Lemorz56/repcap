@@ -7,10 +7,9 @@ import "net"
 type NicServiceInterface interface {
 	InitNics() error
 	GetAllNics() ([]NetworkInterfaceCard, error)
-	GetNicInfoByName(interfaceId string) (NetworkInterfaceCard, error)
+	GetNicByName(interfaceId string) (NetworkInterfaceCard, error)
 }
 
-// todo: make private struct
 type nicService struct {
 	networkInterfaceCards []NetworkInterfaceCard
 }
@@ -18,7 +17,7 @@ type nicService struct {
 type NetworkInterfaceCard struct {
 	Id          string
 	Description string
-	Addresses   []net.Addr
+	Addresses   []string
 }
 
 func NewNicService() NicServiceInterface {
@@ -36,10 +35,16 @@ func (w *nicService) InitNics() error {
 		if err != nil {
 			return err
 		}
+
+		ipAddrs := make([]string, len(addrs))
+		for i, addr := range addrs {
+			ipAddrs[i] = addr.String()
+		}
+
 		w.networkInterfaceCards = append(w.networkInterfaceCards, NetworkInterfaceCard{
 			Id:          i.Name,
 			Description: i.Flags.String(),
-			Addresses:   addrs,
+			Addresses:   ipAddrs,
 		})
 	}
 	return nil
@@ -49,7 +54,7 @@ func (w *nicService) GetAllNics() ([]NetworkInterfaceCard, error) {
 	return w.networkInterfaceCards, nil
 }
 
-func (w *nicService) GetNicInfoByName(interfaceId string) (NetworkInterfaceCard, error) {
+func (w *nicService) GetNicByName(interfaceId string) (NetworkInterfaceCard, error) {
 	for _, nic := range w.networkInterfaceCards {
 		if nic.Id == interfaceId {
 			return nic, nil

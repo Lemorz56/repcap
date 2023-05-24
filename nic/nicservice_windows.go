@@ -18,7 +18,7 @@ type nicService struct {
 type NetworkInterfaceCard struct {
 	Id          string
 	Description string
-	Addresses   []pcap.InterfaceAddress
+	Addresses   []string
 }
 
 func NewNicService() NicServiceInterface {
@@ -32,10 +32,15 @@ func (w *nicService) InitNics() error {
 	}
 
 	for _, i := range interfaces {
+		var ipAddrs []string
+		for _, addr := range i.Addresses {
+			ipAddrs = append(ipAddrs, addr.IP.String())
+		}
+
 		w.networkInterfaceCards = append(w.networkInterfaceCards, NetworkInterfaceCard{
 			Id:          i.Name,
 			Description: i.Description,
-			Addresses:   i.Addresses,
+			Addresses:   ipAddrs,
 		})
 	}
 	return nil

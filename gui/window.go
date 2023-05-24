@@ -1,11 +1,11 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne/v2"
 	"github.com/lemorz56/pcapreplay/components"
 )
 
-type Windows struct {
+type Window struct {
 	// Main
 	App fyne.App
 	Win fyne.Window

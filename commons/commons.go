@@ -1,10 +1,10 @@
 package commons
 
 import (
+	"fyne.io/fyne/v2/data/binding"
 	"time"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
 	"github.com/google/gopacket/pcap"
 )
 
@@ -31,7 +31,7 @@ var (
 	Packets int
 	Size    int
 
-	PcapHndl *pcap.Handle
+	PcapHandle *pcap.Handle
 )
 
 // gui vars
@@ -40,10 +40,9 @@ var (
 	MainWin  fyne.Window
 	MainPane fyne.Container
 
-	//todo: remove
-	DeviceName        string
-	DeviceDescription string
-	DeviceAddress     string
+	DeviceName        string //todo: remove
+	DeviceDescription string //todo: remove
+	DeviceAddress     string //todo: remove
 
 	// CONTAINERS
 	//InterfacesPane *fyne.Container
@@ -51,15 +50,21 @@ var (
 	//ControlsPane *fyne.Container
 
 	// STATS
-	Stats1 *widget.Entry //todo: need to create
-	Stats2 *widget.Entry
+
+	//Stats1 *widget.Entry //todo: need to create
+	//Stats2 *widget.Entry
+	Stats1 = binding.NewString() //todo: need to create
+	Stats2 = binding.NewString()
+
 	// FileField *widget.Entry
 
 	// NUMBER BOX
 	// StepSpinBox *extensions.NumericalEntry
 
 	// PROGRESSBAR
-	StatPBar *widget.ProgressBar
+
+	//StatPBar *widget.ProgressBar
+	StatPBar = binding.NewFloat()
 
 	// INTERFACES
 	// InterfacesLabel *widget.Label

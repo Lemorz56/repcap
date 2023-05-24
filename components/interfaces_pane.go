@@ -2,12 +2,12 @@ package components
 
 import (
 	"fmt"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 	"github.com/lemorz56/pcapreplay/nic"
 	"log"
 	"strings"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -98,8 +98,8 @@ func onInterfaceSelect(s string, ip *InterfacesPane) {
 	}
 
 	var stringSlice []string
-	for _, address := range device.Addresses {
-		stringSlice = append(stringSlice, address.IP.String())
+	for _, ipAddress := range device.Addresses {
+		stringSlice = append(stringSlice, ipAddress)
 	}
 	commons.DeviceName = fmt.Sprintf("Name: %s", device.Id)
 	commons.DeviceDescription = fmt.Sprintf("Description: %s", device.Description)
