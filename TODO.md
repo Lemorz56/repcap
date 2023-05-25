@@ -8,5 +8,6 @@
 
 5. Error handling and logging: Improve the error handling and logging mechanisms to provide meaningful error messages to the user and aid in troubleshooting. Consider using a structured logging library like logrus or zap to enhance the logging capabilities of the application.
 
-- [ ] Logging to file for debug purposes using GUI.
-- [ ] 
+- [ ] Logging to file for debug purposes when using GUI?
+- [ ] Redo structure of project
+- [ ] Write more tests
