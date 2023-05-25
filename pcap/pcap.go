@@ -26,7 +26,7 @@ func WritePacketDelayed(handle *pcap.Handle, buf []byte, ci gopacket.CaptureInfo
 
 	commons.LastSend = time.Now()
 	//todo: add counter to count the number of packets NOT sent
-	// if WritePacket returns an error, increment the counter
+	// if WritePacket returns an error, increment the counter?
 	_ = WritePacket(handle, buf)
 	commons.LastTS = ci.Timestamp
 }
@@ -81,8 +81,7 @@ func Infos(filename string) (start, end time.Time, packets, size int) {
 		s := fmt.Sprintf("%d", packets/sec)
 		err = commons.Stats1.Set(s)
 		if err != nil {
-			//todo: this!
-			log.Fatalf("Error: %v", err)
+			log.Printf("Error: %v", err)
 		}
 	}
 
@@ -106,7 +105,6 @@ func OpenDest(netIntf string) *pcap.Handle {
 	if err != nil {
 		log.Fatalf("Error creating inactive handle: %v", err)
 	}
-	//todo: error handling
 	_ = inactive.SetPromisc(true)
 	defer inactive.CleanUp()
 
@@ -122,10 +120,8 @@ func EndReplay() {
 	}
 
 	if commons.WithGui {
-		//commons.StatPBar.SetValue(-1)
 		err := commons.StatPBar.Set(-1)
 		if err != nil {
-			//todo: this!
 			log.Printf("Error setting progress bar: %v", err)
 		}
 	}
@@ -169,31 +165,17 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 			log.Printf("\rrate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
 
 			if commons.WithGui && !commons.ReplayFast {
-				//commons.StatPBar.SetValue(float64(commons.Pkt * 100 / commons.Packets))
-				test1 := float64(commons.Pkt*100/commons.Packets) / 100
-				test2 := commons.Pkt * 100 / commons.Packets
-				fmt.Printf("test1: %f\n", test1)
-				fmt.Printf("test2: %d\n", test2)
+				val := float64(commons.Pkt*100/commons.Packets) / 100
 
-				// float64(commons.Pkt*100/commons.Packets)
-				err = commons.StatPBar.Set(test1) //todo: this generates 1..2..3 which does not work, 1 = 100%
-				tt := commons.Pkt * 100 / commons.Packets
-				fmt.Printf("test tt: %d\n", tt)
-
+				err = commons.StatPBar.Set(val)
 				if err != nil {
-					//todo: this!
 					log.Printf("Error setting progress bar: %v", err)
 				}
-				test3, _ := commons.StatPBar.Get()
-				fmt.Println("test3: ", test3)
+
 				s := fmt.Sprintf("rate %d kB/sec - sent %d/%d kB - %d/%d packets - remaining time %s", rate/1000, commons.BytesSent/1000, commons.Size/1000, commons.Pkt, commons.Packets, remainingTime)
+
 				err = commons.Stats2.Set(s)
-
-				fmt.Printf("stuff: \tCommons.Pkt\tval\tcommon.Packets\n")
-				fmt.Printf("stuff: \t%d\t%d\t%d\n", commons.Pkt, 100, commons.Packets)
-
 				if err != nil {
-					//todo: this!
 					log.Printf("Error setting stats2: %v", err)
 				}
 			}
