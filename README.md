@@ -37,6 +37,8 @@ TBD
 
 Contributions are always welcome!
 
+You'll need to install [pre-commit]() and follow [Conventional Commits]().
+<!-- pre-commit install && pre-commit install --hook-type commit-msg -->
 See `contributing.md` for ways to get started.
 - Clone the repository
 - Checkout branch named `feat/feature-name` or ``bug/bug-name`
@@ -47,8 +49,7 @@ See `contributing.md` for ways to get started.
 
  - [Fyne](https://github.com/fyne-io/fyne)
  - [PcapReplay - other](https://www.google.com)
- 
+
 ## Authors
 
 - [@lemorz56](https://www.github.com/lemorz56)
-

@@ -1,4 +1,10 @@
 repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.5.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ['@commitlint/config-conventional']
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -11,9 +17,3 @@ repos:
       - id: go-vet
       - id: go-staticcheck-mod
       - id: golangci-lint
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.5.0
-    hooks:
-      - id: commitlint
-        stages: [commit-msg]
-        additional_dependencies: ['@commitlint/config-conventional']
