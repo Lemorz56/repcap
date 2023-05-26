@@ -1,34 +1,34 @@
 package mocks
 
 import (
-	"github.com/google/gopacket/pcap"
+	"net"
+
 	"github.com/lemorz56/pcapreplay/nic"
 	"github.com/stretchr/testify/mock"
-	"net"
 )
 
-var fakeNic = []nic.NetworkInterfaceCard{
+var addr1 = net.IPAddr{
+	IP:   net.IP{127, 0, 0, 1},
+	Zone: "",
+}
+
+var FakeNic = []nic.NetworkInterfaceCard{
 	{
 		Id:          "fakeName",
 		Description: "fakeDescription",
-		Addresses: []pcap.InterfaceAddress{
-			{
-				IP:        net.IP{127, 0, 0, 1},
-				Netmask:   net.IPMask{255, 0, 0, 0},
-				Broadaddr: net.IP{127, 0, 0, 1},
-				P2P:       net.IP{127, 0, 0, 1},
-			},
+		Addresses: []string{
+			addr1.String(),
 		},
 	},
 }
 
 type MockNicService struct {
 	mock.Mock
-	fakeNics []nic.NetworkInterfaceCard
+	FakeNics []nic.NetworkInterfaceCard
 }
 
 func (m *MockNicService) InitNics() error {
-	m.fakeNics = fakeNic
+	m.FakeNics = FakeNic
 	return m.Called().Error(0)
 }
 

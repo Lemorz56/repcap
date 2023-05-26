@@ -67,10 +67,10 @@ func (rp *ReplayPane) CreateAndFillContainer() {
 		rp.StatPBar)
 }
 
-func (rp *ReplayPane) disableControls() {
-	//rp.Stats1.Disable()
-	//rp.Stats2.Disable()
-}
+// func (rp *ReplayPane) disableControls() {
+// 	//rp.Stats1.Disable()
+// 	//rp.Stats2.Disable()
+// }
 
 func (rp *ReplayPane) onFileDialogClosed(uc fyne.URIReadCloser, err error) {
 	if err != nil {

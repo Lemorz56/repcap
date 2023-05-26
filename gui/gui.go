@@ -2,6 +2,8 @@ package gui
 
 import (
 	"fmt"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -11,7 +13,6 @@ import (
 	"github.com/lemorz56/pcapreplay/commons"
 	"github.com/lemorz56/pcapreplay/components"
 	"github.com/lemorz56/pcapreplay/nic"
-	"time"
 )
 
 // TODO: This should not be in a GUI package and be global?
@@ -91,11 +92,11 @@ func Create() {
 	mainWindow.Win.ShowAndRun()
 }
 
-type replayData struct {
-	StatPBar        *widget.ProgressBar
-	StatPBarBinding binding.Float
-	Stats1          *widget.Entry
-	Stats1Binding   binding.String
-	Stats2          *widget.Entry
-	Stats2Binding   binding.String
-}
+// type replayData struct {
+// 	StatPBar        *widget.ProgressBar
+// 	StatPBarBinding binding.Float
+// 	Stats1          *widget.Entry
+// 	Stats1Binding   binding.String
+// 	Stats2          *widget.Entry
+// 	Stats2Binding   binding.String
+// }
