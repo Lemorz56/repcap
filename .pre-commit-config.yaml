@@ -18,3 +18,6 @@ repos:
       # - id: go-staticcheck-mod
       # - id: golangci-lint
         - id: golangci-lint-mod
+        - id: go-vet-mod
+        - id: go-staticcheck-mod
+        - id: go-fmt
