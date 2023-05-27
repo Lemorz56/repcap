@@ -26,7 +26,9 @@ jobs:
       - name: Install modules
         run: go mod tidy
       - name: Install PCAP Deps
-        run: sudo apt-get install libpcap-dev
+        run: sudo apt-get install -y libpcap-dev
+      - name: Install GCC
+        run: sudo apt install -y gcc-mingw-w64
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4.2.0
