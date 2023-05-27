@@ -9,13 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0 # It is required for GoReleaser to work properly
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '1.20'
+          cache: true
       # - name: Cache Go modules
       #   uses: actions/cache@v1
       #   with:
@@ -26,10 +27,10 @@ jobs:
 
       # Deps below are for Fyne
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y -q libgtk-3-dev libayatana-appindicator3-dev libgl1-mesa-dev xorg-dev gcc-mingw-w64-x86-64
+        run: sudo apt update && sudo apt install -y -q libgl1-mesa-dev xorg-dev gcc-mingw-w64-x86-64
       - name: Install PCAP dependencies
         run: sudo apt-get install -y libpcap-dev
-      - name: Install GCC
+      - name: Install GCC # this step might not be needed
         run: sudo apt install -y gcc-mingw-w64
 
       - name: Run GoReleaser

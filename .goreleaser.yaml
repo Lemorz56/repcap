@@ -48,6 +48,17 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 
+release:
+  #name_template: 'v{{ .Version }}'
+  #draft: true
+  prerelease: auto
+  footer: |
+    **Full Changelog**: https://github.com/Lemorz56/pcapreplay/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    Found a bug? Create an [issue](https://github.com/Lemorz56/pcapreplay/issues)!
+    Want to help? [contribute](/contributing).
+
+
 changelog:
   use: github
   sort: asc
