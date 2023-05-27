@@ -23,10 +23,13 @@ jobs:
       #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       #     restore-keys: |
       #       ${{ runner.os }}-go-
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y -q libgtk-3-dev libayatana-appindicator3-dev libgl1-mesa-dev xorg-dev gcc-mingw-w64-x86-64
+      - name: Install PCAP dependencies
+        run: sudo apt-get install -y libpcap-dev
+
       - name: Install modules
         run: go mod tidy
-      - name: Install PCAP Deps
-        run: sudo apt-get install -y libpcap-dev
       - name: Install GCC
         run: sudo apt install -y gcc-mingw-w64
 
