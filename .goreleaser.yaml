@@ -2,33 +2,22 @@ before:
   hooks:
     - go mod tidy
     - go mod download
-
-# builds:
-#   - env:
-#       - CGO_ENABLED=1
-#     goos:
-#       - linux
-#       - windows
-#       # - darwin
-#     goarch:
-#       - amd64
-#       - arm64
 builds:
-  # - id: lin-gui
-  #   binary: pcapreplay-gui
-  #   env:
-  #     - CGO_ENABLED=1
-  #   goos:
-  #     - linux
-  #   goarch:
-  #     - amd64
-  #     - "386"
-  #   ldflags:
-  #     # - -s -w -X main.version={{.Version}}
-  #     - -s
-  #     - -w
+  - id: lin-gui
+    binary: pcapreplay
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - "386"
+    ldflags:
+      # - -s -w -X main.version={{.Version}}
+      - -s
+      - -w
   - id: win-gui
-    binary: pcapreplay-gui
+    binary: pcapreplay
     env:
       - CGO_ENABLED=1
       - CC=x86_64-w64-mingw32-gcc
@@ -37,7 +26,6 @@ builds:
     goarch:
       - amd64
     ldflags:
-      - -H=windowsgui
       - -s
       - -w
 
@@ -63,6 +51,7 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 
 changelog:
+  use: github
   sort: asc
   groups: # Regex use RE2 syntax as defined here: https://github.com/google/re2/wiki/Syntax.
   - title: 'Features'
@@ -84,7 +73,4 @@ changelog:
       - '^test:'
       # - '^docs:'
 
-# The lines beneath this are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
