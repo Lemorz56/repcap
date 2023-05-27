@@ -3,13 +3,14 @@ package components
 import (
 	"testing"
 
-	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateAndFillContainer(t *testing.T) {
-	a := app.New()
-	win := a.NewWindow("test")
+	test.NewApp()
+	win := test.NewWindow(nil)
+	defer win.Close()
 
 	rp := NewReplayPane()
 	rp.MainWindow = &win
@@ -21,8 +22,8 @@ func TestCreateAndFillContainer(t *testing.T) {
 }
 
 func TestInitPane(t *testing.T) {
-	a := app.New()
-	win := a.NewWindow("test")
+	test.NewApp()
+	win := test.NewWindow(nil)
 
 	rp := NewReplayPane()
 	rp.MainWindow = &win
