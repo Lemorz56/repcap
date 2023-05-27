@@ -3,6 +3,7 @@ before:
     - go mod tidy
     - go mod download
 builds:
+
   - id: lin-gui
     binary: pcapreplay
     env:
@@ -12,9 +13,8 @@ builds:
     goarch:
       - amd64
     ldflags:
-      # - -s -w -X main.version={{.Version}}
-      - -s
-      - -w
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+
   - id: win-gui
     binary: pcapreplay
     env:
@@ -25,8 +25,7 @@ builds:
     goarch:
       - amd64
     ldflags:
-      - -s
-      - -w
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
 
 archives:
   - format: tar.gz
