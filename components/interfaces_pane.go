@@ -7,12 +7,12 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
-	"github.com/lemorz56/pcapreplay/nic"
+	"github.com/lemorz56/repcap/nic"
 
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/lemorz56/pcapreplay/commons"
+	"github.com/lemorz56/repcap/commons"
 )
 
 type InterfacesPane struct {

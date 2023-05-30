@@ -2,7 +2,7 @@ package gui
 
 import (
 	"fyne.io/fyne/v2"
-	"github.com/lemorz56/pcapreplay/components"
+	"github.com/lemorz56/repcap/components"
 )
 
 type Window struct {

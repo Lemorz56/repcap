@@ -8,18 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// https://stackoverflow.com/questions/57708978/mock-functions-in-golang-for-testing
-// https://stackoverflow.com/a/70080876
-//todo: fix this code
-
 // TestWindowsNicService_InitNics
 func TestWindowsNicService_InitNics(t *testing.T) {
+	//todo: create a mock for pcap.FindAllDevs()
 	// Arrange
 	var nicService = NewNicService()
-
 	// Act
 	err := nicService.InitNics()
-
 	// Assert
 	assert.Nil(t, err)
 }
@@ -53,9 +48,15 @@ func TestWindowsNicService_GetNicByName(t *testing.T) {
 		t.FailNow()
 	}
 
-	nic, err := nicService.GetNicByName("Loopback") //todo: this will fail
+	//todo: improve test to not use GetAllNics() cheat
+	nics, err := nicService.GetAllNics()
+	if err != nil {
+		t.FailNow()
+	}
+	nic, err := nicService.GetNicByName(nics[0].Id)
 
 	// Assert
 	assert.Nil(t, err)
 	assert.NotEmpty(t, nic)
+	assert.Equal(t, nics[0].Id, nic.Id)
 }

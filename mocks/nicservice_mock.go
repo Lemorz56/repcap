@@ -1,10 +1,9 @@
 package mocks
 
 import (
-	"net"
-
-	"github.com/lemorz56/pcapreplay/nic"
+	"github.com/lemorz56/repcap/nic"
 	"github.com/stretchr/testify/mock"
+	"net"
 )
 
 var addr1 = net.IPAddr{

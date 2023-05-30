@@ -2,11 +2,12 @@ package components
 
 import (
 	"fmt"
-	"fyne.io/fyne/v2"
-	"github.com/lemorz56/pcapreplay/commons"
-	"github.com/lemorz56/pcapreplay/extension"
-	"github.com/lemorz56/pcapreplay/pcap"
 	"strconv"
+
+	"fyne.io/fyne/v2"
+	"github.com/lemorz56/repcap/commons"
+	"github.com/lemorz56/repcap/extension"
+	"github.com/lemorz56/repcap/pcap"
 
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -95,7 +96,6 @@ func (cp *ControlsPane) initButtons() {
 
 	cp.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() {
 		fmt.Println("reset")
-
 		commons.ReplayFast = false
 		//cp.EnableControls()
 		// go pcap.EndReplay()

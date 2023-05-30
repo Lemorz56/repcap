@@ -3,7 +3,7 @@ package components
 import (
 	"testing"
 
-	"github.com/lemorz56/pcapreplay/mocks"
+	"github.com/lemorz56/repcap/mocks"
 )
 
 var fakeNic = mocks.FakeNic
