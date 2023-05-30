@@ -1,4 +1,4 @@
-module github.com/lemorz56/pcapreplay
+module github.com/lemorz56/repcap
 
 go 1.19
 

@@ -10,9 +10,9 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/lemorz56/pcapreplay/commons"
-	"github.com/lemorz56/pcapreplay/components"
-	"github.com/lemorz56/pcapreplay/nic"
+	"github.com/lemorz56/repcap/commons"
+	"github.com/lemorz56/repcap/components"
+	"github.com/lemorz56/repcap/nic"
 )
 
 // TODO: This should not be in a GUI package and be global?
@@ -20,7 +20,7 @@ import (
 func Create() {
 	// Main Window
 	mainWindow := &Window{
-		App: app.NewWithID("lemorz56.pcapreplay"),
+		App: app.NewWithID("lemorz56.repcap"),
 	}
 	mainWindow.Win = mainWindow.App.NewWindow("PCAP Replay")
 	mainWindow.Win.CenterOnScreen()

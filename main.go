@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/lemorz56/pcapreplay/cli"
+	"github.com/lemorz56/repcap/cli"
 )
 
 var (

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
-	"github.com/lemorz56/pcapreplay/commons"
+	"github.com/lemorz56/repcap/commons"
 )
 
 func WritePacketDelayed(handle *pcap.Handle, buf []byte, ci gopacket.CaptureInfo) {

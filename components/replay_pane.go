@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/lemorz56/pcapreplay/commons"
+	"github.com/lemorz56/repcap/commons"
 )
 
 type ReplayPane struct {

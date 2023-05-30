@@ -2,19 +2,20 @@ package cli
 
 import (
 	"fmt"
-	"github.com/lemorz56/pcapreplay/commons"
-	"github.com/lemorz56/pcapreplay/gui"
-	"github.com/lemorz56/pcapreplay/nic"
-	"github.com/lemorz56/pcapreplay/pcap"
+
+	"github.com/lemorz56/repcap/commons"
+	"github.com/lemorz56/repcap/gui"
+	"github.com/lemorz56/repcap/nic"
+	"github.com/lemorz56/repcap/pcap"
 	"github.com/urfave/cli/v2"
 )
 
 func CreateCliApp(version string) *cli.App {
 	app := cli.NewApp()
-	app.Name = "pcapreplay"
+	app.Name = "repcap"
 	app.Version = version
-	app.Usage = "pcapreplay"
-	app.UsageText = "pcapreplay --interface <interface> [--fast]  --pcap <pcap file>"
+	app.Usage = "repcap"
+	app.UsageText = "repcap --interface <interface> [--fast]  --pcap <pcap file>"
 	app.CommandNotFound = func(c *cli.Context, command string) {
 		fmt.Printf("Command not found: %v\n", command)
 		fmt.Println("Use --help or -h to see available commands")

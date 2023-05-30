@@ -1,6 +1,9 @@
 .RECIPEPREFIX = >
 
 test:
+> @go test ./...
+
+testrace:
 > @go test -race ./...
 
 guirun:
