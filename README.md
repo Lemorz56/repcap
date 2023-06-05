@@ -5,6 +5,10 @@ A tcpreplay like tool with GUI for pcap files and media controls.
 Built with [Go](https://go.dev/) and [Fyne](https://github.com/fyne-io/fyne).
 
 It can be used as a CLI tool but also supports usage through it's GUI.
+
+## Why?
+As I was working on another project where I was constantly re-playing a wireshark recording (pcap file), I felt the need for a tool. Sure a python script worked, but it's hard to have fine grained control, especially if there is different parts of the file I want to replay on different occasions. Upon searching GitHub for similar tools, I found a few outdated ones which prompted me to make one myself.
+
 ## Screenshots
 
 ![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
