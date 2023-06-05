@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -30,13 +31,13 @@ func NewControlsPane() *ControlsPane {
 	return &ControlsPane{}
 }
 
-func (cp *ControlsPane) InitPane() {
+func (cp *ControlsPane) InitPane(ctx context.Context) {
 
 	cp.Label = widget.NewLabelWithStyle("Controls",
 		fyne.TextAlignLeading,
 		fyne.TextStyle{Bold: true},
 	)
-	cp.initButtons()
+	cp.initButtons(ctx)
 }
 
 func (cp *ControlsPane) CreateAndFillContainer() {
@@ -57,21 +58,26 @@ func (cp *ControlsPane) CreateAndFillContainer() {
 }
 
 // initialize all buttons with icons and callbacks
-func (cp *ControlsPane) initButtons() {
+func (cp *ControlsPane) initButtons(ctx context.Context) {
 	cp.PlayBtn = widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() {
 		fmt.Println("played")
 
 		commons.ReplayFast = false
-		//cp.DisableControls()
-		go pcap.Replay()
+
+		go pcap.Replay(ctx)
+
+		cp.ResetBtn.Enable()
+		cp.disableAllPlayButtons()
 	})
 
 	cp.StepOnePlayBtn = widget.NewButtonWithIcon("StepOne", theme.MediaSkipNextIcon(), func() {
 		fmt.Println("step one")
-
 		commons.ReplayFast = false
-		//cp.DisableControls()
+
 		go pcap.ReplayStep(1)
+
+		cp.ResetBtn.Enable()
+		cp.disableAllPlayButtons()
 	})
 
 	cp.StepSpinBox = extension.NewNumericalEntry()
@@ -79,28 +85,52 @@ func (cp *ControlsPane) initButtons() {
 
 	cp.StepPlayBtn = widget.NewButtonWithIcon("", theme.MediaSkipNextIcon(), func() {
 		fmt.Println("step " + cp.StepSpinBox.Text)
-
 		commons.ReplayFast = false
-		//cp.DisableControls()
+
 		val, _ := strconv.Atoi(cp.StepSpinBox.Text)
 		go pcap.ReplayStep(val)
+
+		cp.ResetBtn.Enable()
+		cp.disableAllPlayButtons()
 	})
 
 	cp.FastPlayBtn = widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() {
 		fmt.Println("fast forward")
 
 		commons.ReplayFast = true
-		//cp.DisableControls()
-		go pcap.Replay()
+		go pcap.Replay(ctx)
+
+		cp.ResetBtn.Enable()
+		cp.disableAllPlayButtons()
 	})
 
 	cp.ResetBtn = widget.NewButtonWithIcon("", theme.MediaStopIcon(), func() {
 		fmt.Println("reset")
 		commons.ReplayFast = false
-		//cp.EnableControls()
+		ctx.Done()
+
+		cp.enableAllPlayButtons()
+		cp.ResetBtn.Disable()
+
 		// go pcap.EndReplay()
 		pcap.EndReplay()
 	})
+
+	cp.ResetBtn.Disable()
+}
+
+func (cp *ControlsPane) disableAllPlayButtons() {
+	cp.PlayBtn.Disable()
+	cp.FastPlayBtn.Disable()
+	cp.StepPlayBtn.Disable()
+	cp.StepOnePlayBtn.Disable()
+}
+
+func (cp *ControlsPane) enableAllPlayButtons() {
+	cp.PlayBtn.Enable()
+	cp.FastPlayBtn.Enable()
+	cp.StepPlayBtn.Enable()
+	cp.StepOnePlayBtn.Enable()
 }
 
 func (cp *ControlsPane) DisableControls() {
@@ -108,7 +138,7 @@ func (cp *ControlsPane) DisableControls() {
 	cp.FastPlayBtn.Disable()
 	cp.StepPlayBtn.Disable()
 	cp.StepOnePlayBtn.Disable()
-	//cp.ResetBtn.Disable()
+	cp.ResetBtn.Disable()
 	cp.StepSpinBox.Disable()
 }
 
@@ -117,6 +147,6 @@ func (cp *ControlsPane) EnableControls() {
 	cp.FastPlayBtn.Enable()
 	cp.StepPlayBtn.Enable()
 	cp.StepOnePlayBtn.Enable()
-	//cp.ResetBtn.Enable()
+	cp.ResetBtn.Enable()
 	cp.StepSpinBox.Enable()
 }

@@ -1,6 +1,7 @@
 package pcap
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -78,7 +79,7 @@ func Infos(filename string) (start, end time.Time, packets, size int) {
 
 	log.Printf("Avg packet rate %d/s\n", packets/sec)
 	if commons.WithGui {
-		s := fmt.Sprintf("%d", packets/sec)
+		s := fmt.Sprintf("Avg packet rate %d/s\n", packets/sec)
 		err = commons.Stats1.Set(s)
 		if err != nil {
 			log.Printf("Error: %v", err)
@@ -128,6 +129,9 @@ func EndReplay() {
 }
 
 func InternalReplay(handleWrite *pcap.Handle) bool {
+	if commons.PcapHandle == nil {
+		return false
+	}
 	data, ci, err := commons.PcapHandle.ReadPacketData()
 
 	switch {
@@ -184,16 +188,23 @@ func InternalReplay(handleWrite *pcap.Handle) bool {
 	return false
 }
 
-func Replay() {
+func Replay(ctx context.Context) {
 	if commons.PcapHandle != nil {
 		EndReplay()
+		ctx.Done()
 	}
 	LoadPcap(commons.PcapFile)
 	handleWrite := OpenDest(commons.IntfId)
 
 	for {
-		if InternalReplay(handleWrite) {
-			break
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			if InternalReplay(handleWrite) {
+				//break
+				ctx.Done()
+			}
 		}
 	}
 }

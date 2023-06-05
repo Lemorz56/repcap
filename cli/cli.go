@@ -29,7 +29,7 @@ func CreateCliApp(version string) *cli.App {
 			},
 			Description: "Replay a pcap file",
 			Action: func(c *cli.Context) error {
-				pcap.Replay()
+				pcap.Replay(c.Context)
 				return nil
 			},
 			Flags: []cli.Flag{
