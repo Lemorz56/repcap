@@ -5,9 +5,10 @@ A tcpreplay like tool with GUI for pcap files and media controls.
 Built with [Go](https://go.dev/) and [Fyne](https://github.com/fyne-io/fyne).
 
 It can be used as a CLI tool but also supports usage through it's GUI.
+
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](./images/screenshot.png)
 
 ## Features
 *TBD*
