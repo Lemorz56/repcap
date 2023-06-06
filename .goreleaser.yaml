@@ -82,4 +82,17 @@ changelog:
       - '^test:'
       # - '^docs:'
 
+scoops:
+  - name: repcap
+    url_template: "http://github.com/lemorz56/repcap/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    bucket:
+      owner: lemorz56
+      name: scoop-bucket
+      branch: main
+      #token: ${{ secrets.SCOOP_TAP_GITHUB_TOKEN }}
+    folder: bucket
+    homepage: http://github.com/lemorz56/repcap
+    description: A tcpreplay like tool with GUI for pcap files with media controls. Built with Go and Tyne.
+    license: MIT
+
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
