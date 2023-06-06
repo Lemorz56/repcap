@@ -12,6 +12,8 @@ import (
 	"github.com/lemorz56/repcap/commons"
 )
 
+var lastOpenedFile string
+
 func WritePacketDelayed(handle *pcap.Handle, buf []byte, ci gopacket.CaptureInfo) {
 	if ci.CaptureLength != ci.Length {
 		return
@@ -89,6 +91,9 @@ func Infos(filename string) (start, end time.Time, packets, size int) {
 }
 
 func LoadPcap(filename string) {
+	if filename == lastOpenedFile {
+		return
+	}
 	var err error
 	commons.PcapHandle, err = pcap.OpenOffline(filename)
 	if err != nil {
@@ -98,6 +103,7 @@ func LoadPcap(filename string) {
 	commons.Start = time.Now()
 	commons.Pkt = 0
 	commons.TsStart, commons.TsEnd, commons.Packets, commons.Size = Infos(commons.PcapFile)
+	lastOpenedFile = filename
 }
 
 func OpenDest(netIntf string) *pcap.Handle {
