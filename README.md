@@ -6,18 +6,26 @@ Built with [Go](https://go.dev/) and [Fyne](https://github.com/fyne-io/fyne).
 
 It can be used as a CLI tool but also supports usage through it's GUI.
 
+> [!WARNING]
+> Repcap is still in its very early stages of development, hence it hasn't been released yet.
+> Only way to get it as of now is to build it yourself.
+
 ## Why?
-As I was working on another project where I was constantly re-playing a wireshark recording (pcap file), I felt the need for a tool. Sure a python script worked, but it's hard to have fine grained control, especially if there is different parts of the file I want to replay on different occasions. Upon searching GitHub for similar tools, I found a few outdated ones which prompted me to make one myself.
+
+I needed a tool since I was working on another project that required me to replay wireshark recordings (pcap files) all the time. Although a Python script managed to accomplish the task, achieving precise control is sometimes challenging, particularly when one wishes to repeat distinct segments of the file at various times. After looking through GitHub for comparable tools, I discovered a few outdated tools, which inspired me to create my own.
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+Screenshot of it in it's current state (Work In Progress)
+![App Screenshot](./docs/images/screenshot.png)
 
 ## Features
 *TBD*
 
-<!-- - Light/dark mode toggle
-- Cross platform -->
+<!--
+- Light/dark mode toggle
+- Cross platform
+-->
 
 ## Installation
 
